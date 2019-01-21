@@ -1340,6 +1340,9 @@ public class IceUdpTransportManager
             return;
         }
 
+        logger.info("[FMDB] - Starting connectivity establishment");
+        logger.info(transport.toXML().toString());
+
         // Reflect the transport's rtcpmux onto this instance.
         setRtcpmux(transport);
 
@@ -2134,6 +2137,7 @@ public class IceUdpTransportManager
     public void startConnectivityEstablishment(
             IceUdpTransportPacketExtension transport)
     {
+        logger.info("Start Connectivity Establishment");
         doStartConnectivityEstablishment(transport);
 
         synchronized (connectThreadSyncRoot)
