@@ -688,12 +688,16 @@ public class IceUdpTransportManager
         int generation = iceAgent.getGeneration();
         int remoteCandidateCount = 0;
 
+        logger.info("Looping over candidates");
         for (CandidatePacketExtension candidate : candidates)
         {
+            logger.info("checking generation");
             // Is the remote candidate from the current generation of the
             // iceAgent?
             if (candidate.getGeneration() != generation)
                 continue;
+
+            logger.info("Generation correct");
 
             if (rtcpmux && Component.RTCP == candidate.getComponent())
             {
@@ -719,6 +723,8 @@ public class IceUdpTransportManager
                             Transport.parse(candidate.getProtocol()));
             }
 
+            logger.info("Related candidates check");
+
             RemoteCandidate relatedCandidate
                 = component.findRemoteCandidate(relatedAddress);
             RemoteCandidate remoteCandidate
@@ -734,6 +740,7 @@ public class IceUdpTransportManager
                         candidate.getPriority(),
                         relatedCandidate);
 
+            logger.info("[FMDB] - Doing can reach check");
             // XXX IceUdpTransportManager harvests host candidates only and the
             // ICE Components utilize the UDP protocol/transport only at the
             // time of this writing. The ice4j library will, of course, check
@@ -743,17 +750,21 @@ public class IceUdpTransportManager
             // value.
             if (!canReach(component, remoteCandidate))
             {
+                logger.info("[FMDB] - couldn't reach not adding");
                 continue;
             }
 
             if (iceAgentStateIsRunning)
             {
+                logger.info("[FMDB] - updating candidates");
                 component.addUpdateRemoteCandidates(remoteCandidate);
             }
             else
             {
+                logger.info("[FMDB] - adding new remotes");
                 component.addRemoteCandidate(remoteCandidate);
             }
+
             remoteCandidateCount++;
         }
 
@@ -1384,6 +1395,8 @@ public class IceUdpTransportManager
             return;
         }
 
+        logger.info("[FMDB] - attempting to set candidates");
+        logger.info("[FMDB] - count of cadidates is: " + candidates.size());
         int remoteCandidateCount
             = addRemoteCandidates(candidates, iceAgentStateIsRunning);
 
