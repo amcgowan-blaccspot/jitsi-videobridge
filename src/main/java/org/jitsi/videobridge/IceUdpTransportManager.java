@@ -694,8 +694,10 @@ public class IceUdpTransportManager
             logger.info("checking generation");
             // Is the remote candidate from the current generation of the
             // iceAgent?
-            if (candidate.getGeneration() != generation)
+            if (candidate.getGeneration() != generation) {
+                logger.error("[FMDB] - GENERATION INCORRECT NOT ADDING");
                 continue;
+            }
 
             logger.info("Generation correct");
 
