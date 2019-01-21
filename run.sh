@@ -1,7 +1,9 @@
 cd ../ice4j &&
+git pull &&
 mvn clean &&
 mvn install -DskipTests &&
 cd ../jitsi-videobridge &&
+git pull && 
 mvn clean &&
 mvn compile exec:exec \
 -Dexec.executable=java -Dexec.args="-cp %classpath org.jitsi.videobridge.Main \
