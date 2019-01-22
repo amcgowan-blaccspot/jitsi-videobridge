@@ -1439,6 +1439,7 @@ public class IceUdpTransportManager
         }
         else if (remoteCandidateCount != 0)
         {
+           logger.info("[FMDB] - OK - we have some remote candidates now. Should we start connectivity?");
             // Once again, because the ICE Agent does not support adding
             // candidates after the connectivity establishment has been started
             // and because multiple transport-info JingleIQs may be used to send
@@ -1449,10 +1450,27 @@ public class IceUdpTransportManager
                 stream -> stream.getComponents().stream().allMatch(
                     component -> component.getRemoteCandidateCount() >= 1)))
             {
+                logger.info("[FMDB] YEP all match lets giv'r");
                 logger.info(
                     "We have remote candidates for all ICE components. "
                         + "Starting the ICE agent.");
                 iceAgent.startConnectivityEstablishment();
+            } else {
+                logger.info("[FMDB] UH UH UHHHHHH Not starting yet! Don't have a match for all candidates yet");
+
+                logger.info("[FMDB] lets isolate the component that doesn't have a match yet");
+
+                for (IceMediaStream stream : iceAgent.getStreams()) {
+                    logger.info("[FMDB] - " + stream.toString());
+                    for (Component c : stream.getComponents()) {
+                        if (c.getRemoteCandidateCount() == 0) {
+                            logger.info("[FMDB] - Missing remote for: " + c.toString());
+                        } else {
+                            logger.info("[FMDB] - All good with: " + c.toString());
+                        }
+                    }
+                }
+
             }
         }
         else if (iceStream.getRemoteUfrag() != null
@@ -1968,6 +1986,7 @@ public class IceUdpTransportManager
 
         if (conference.includeInStatistics())
         {
+            logger.info("[FMDB] - Attempting to get transport");
             Transport transport = getTransport();
             if (transport == null)
             {
@@ -2015,16 +2034,27 @@ public class IceUdpTransportManager
     {
         Transport transport = null;
 
+        for (Component c : iceStream.getComponents()) {
+            logger.info("[FMDB] - Component info: " + c.toString());
+        }
+
         Component component = iceStream.getComponent(Component.RTP);
+
         if (component != null)
         {
+            logger.info("[FMDB] - Component to check: " + component.toString());
             CandidatePair selectedPair = component.getSelectedPair();
             if (selectedPair != null)
             {
+                logger.info("[FMDB] - Selected pair: " + selectedPair.toString());
                 transport
                     = selectedPair.getLocalCandidate().getHostAddress()
                             .getTransport();
+            } else {
+                logger.info("[FMDB] - Selected pair is null");
             }
+        } else {
+            logger.info("[FMDB] - Component is null");
         }
 
         return transport;
