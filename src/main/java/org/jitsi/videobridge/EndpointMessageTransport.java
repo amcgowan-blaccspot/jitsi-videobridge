@@ -399,6 +399,7 @@ class EndpointMessageTransport
         if (dst == null)
         {
             logger.warn("No available transport channel, can't send a message");
+            logger.info("We were trying to send the following message: " + msg);
         }
         else
         {
