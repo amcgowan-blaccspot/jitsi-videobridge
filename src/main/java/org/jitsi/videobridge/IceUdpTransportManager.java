@@ -696,7 +696,26 @@ public class IceUdpTransportManager
             // iceAgent?
             if (candidate.getGeneration() != generation) {
                 logger.error("[FMDB] - GENERATION INCORRECT NOT ADDING");
+
+                logger.info("[FMDB] - Ice Agent Generation is: " + generation);
+                logger.info("[FMDB] - Candidate generation is: " + candidate.getGeneration());
+
+                logger.info("[FMDB] - Candidate IP: " + candidate.getIP());
+                logger.info("[FMDB] - Candidate Port: " + candidate.getPort());
+                logger.info("[FMDB] - Candidate Type: " + candidate.getType());
+
+
                 continue;
+            } else {
+                logger.error("[FMDB] - Have Correct Generation");
+
+                logger.info("[FMDB] - Ice Agent Generation is: " + generation);
+                logger.info("[FMDB] - Candidate generation is: " + candidate.getGeneration());
+
+                logger.info("[FMDB] - Candidate IP: " + candidate.getIP());
+                logger.info("[FMDB] - Candidate Port: " + candidate.getPort());
+                logger.info("[FMDB] - Candidate Type: " + candidate.getType());
+
             }
 
             logger.info("Generation correct");
