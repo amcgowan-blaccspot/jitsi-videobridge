@@ -1418,6 +1418,10 @@ public class IceUdpTransportManager
 
         logger.info("[FMDB] - attempting to set candidates");
         logger.info("[FMDB] - count of cadidates is: " + candidates.size());
+
+        logger.info("[FMDB] - Candidates were extracted from: ");
+        logger.info("[FMDB] - The transport: " + transport.toXML());
+
         int remoteCandidateCount
             = addRemoteCandidates(candidates, iceAgentStateIsRunning);
 
@@ -1457,7 +1461,7 @@ public class IceUdpTransportManager
                 iceAgent.startConnectivityEstablishment();
             } else {
                 logger.info("[FMDB] UH UH UHHHHHH Not starting yet! Don't have a match for all candidates yet");
-
+˝
                 logger.info("[FMDB] lets isolate the component that doesn't have a match yet");
 
                 for (IceMediaStream stream : iceAgent.getStreams()) {
