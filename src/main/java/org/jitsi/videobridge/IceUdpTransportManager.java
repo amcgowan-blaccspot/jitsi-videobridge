@@ -1461,7 +1461,7 @@ public class IceUdpTransportManager
                 iceAgent.startConnectivityEstablishment();
             } else {
                 logger.info("[FMDB] UH UH UHHHHHH Not starting yet! Don't have a match for all candidates yet");
-˝
+
                 logger.info("[FMDB] lets isolate the component that doesn't have a match yet");
 
                 for (IceMediaStream stream : iceAgent.getStreams()) {
