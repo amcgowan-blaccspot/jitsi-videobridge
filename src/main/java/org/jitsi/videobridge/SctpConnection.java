@@ -263,6 +263,8 @@ public class SctpConnection
 
         logger
             = Logger.getLogger(classLogger, content.getConference().getLogger());
+        logger.info("[FMDB] - Just checking - do we create this?");
+
         setEndpoint(endpoint);
         packetQueue
             = new RawPacketQueue(
@@ -327,7 +329,7 @@ public class SctpConnection
         if (IceUdpTransportPacketExtension.NAMESPACE.equals(xmlNamespace))
         {
             Content content = getContent();
-
+            logger.info("[FMDB] - Creating Transport Manager for " + content.getName());
             return
                 new IceUdpTransportManager(
                         content.getConference(),
@@ -487,7 +489,7 @@ public class SctpConnection
     private void maybeOpenDefaultWebRTCDataChannel()
     {
         boolean openChannel;
-
+        logger.info("[FMDB] - Attempting to open a default data channel.");
         synchronized (syncRoot)
         {
             openChannel
@@ -496,7 +498,10 @@ public class SctpConnection
 
         if (openChannel)
         {
+            logger.info("[FMDB] - Opening default.");
             openDefaultWebRTCDataChannel();
+        } else {
+            logger.info("[FMDB] - Not opening default");
         }
     }
 
@@ -508,9 +513,11 @@ public class SctpConnection
     {
         // connector
         final StreamConnector connector = getStreamConnector();
-
-        if (connector == null)
+        logger.info("[FMDB] - Maybe starting stream");
+        if (connector == null) {
+            logger.info("[FMDB] - Nope, connector is null");
             return;
+        }
 
         synchronized (syncRoot)
         {
@@ -522,7 +529,7 @@ public class SctpConnection
                     try
                     {
                         Sctp.init();
-
+                        logger.info("Staring SCTP stream");
                         runOnDtlsTransport(connector);
                     }
                     catch (IOException e)
@@ -725,6 +732,8 @@ public class SctpConnection
     {
         super.onEndpointChanged(oldValue, newValue);
 
+        logger.info("[FMDB] - SCTP Connection changed.");
+
         if (oldValue != null && oldValue instanceof Endpoint)
         {
             ((Endpoint) oldValue).setSctpConnection(null);
@@ -803,6 +812,8 @@ public class SctpConnection
             // numbers.
             int sid = isInitiator() ? 0 : 1;
 
+            logger.info("[FMDB] - Opening default channel for some SID");
+
             logger.debug(String.format(
                 "Will open default WebRTC data channel for: %s next SID: %d",
                 getLoggingId(), sid));
@@ -834,6 +845,7 @@ public class SctpConnection
             byte[] data, int sid, int ssn, int tsn, long ppid, int context,
             int flags)
     {
+        logger.info("[FMDB] - Receiving SCTP packet");
         sctpDispatcher.execute(() -> {
             if (!isExpired() && sctpSocket != null)
             {
@@ -881,6 +893,7 @@ public class SctpConnection
     {
         synchronized (syncRoot)
         {
+            logger.info("[FMDB] - Opening channel");
             return openChannelNotSynchronized(type, prio, reliab, sid, label);
         }
     }

@@ -1052,6 +1052,7 @@ public class RtpChannel
     protected void maybeStartStream()
         throws IOException
     {
+        logger.info("[FMDB] - Maybe start stream.");
         // The stream hasn't been initialized yet.
         synchronized (streamSyncRoot)
         {
@@ -1093,6 +1094,7 @@ public class RtpChannel
 
             stream.setTarget(streamTarget);
         }
+        logger.info("[FMDB] - Setting stream connector. Does this set the DTLS connector?");
         stream.setConnector(connector);
 
         Content content = getContent();

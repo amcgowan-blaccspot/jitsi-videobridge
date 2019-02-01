@@ -935,6 +935,7 @@ public abstract class Channel
      */
     void transportConnected()
     {
+        logger.info("[FMDB] - Transport Conenected - This might set the DTLS?");
         logger.info(Logger.Category.STATISTICS,
                     "transport_connected," + getLoggingId());
 

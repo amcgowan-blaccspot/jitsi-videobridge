@@ -602,6 +602,7 @@ public class IceUdpTransportManager
     @Override
     public boolean addChannel(Channel channel)
     {
+        logger.info("[FMDB] - Adding channel");
         if (closed)
         {
             return false;
@@ -618,17 +619,20 @@ public class IceUdpTransportManager
 
         if (!super.addChannel(channel))
         {
+            logger.info("[FMDB] - Not adding channel... because... assuming it was already added?");
             return false;
         }
 
         if (channel instanceof SctpConnection)
         {
+            logger.info("[FMDB] - Have data channel connection");
             // When an SctpConnection is added, it automatically replaces
             // channelForDtls, because it needs DTLS packets for the application
             // data inside them.
             sctpConnection = (SctpConnection) channel;
             if (channelForDtls != null && channelForDtls instanceof RtpChannel)
             {
+                logger.info("[FMDB] - Channel for dtls stuff - REPLACING");
                 // channelForDtls is usually an RtpChannel, unless a second
                 // SctpConnection is added for this transport manager. This has
                 // been observed to happen when an endpoint ID is reused and
@@ -663,6 +667,7 @@ public class IceUdpTransportManager
 
         if (iceConnected)
         {
+            logger.info("[FMDB] - Ok, zeroing in now. this Should be called when ice is connected. Ice seems to be connected so why is this not called?");
             channel.transportConnected();
         }
 
@@ -1075,6 +1080,7 @@ public class IceUdpTransportManager
         // XXX The actual start of the DTLS servers/clients will be delayed
         // until an rtpConnector is set (when a MediaStream with this
         // SrtpControl starts or is assigned a target).
+        logger.info("[FMDB] - Starting dtls control");
         dtlsControl.start(MediaType.AUDIO);
         return dtlsControl;
     }
