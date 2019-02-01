@@ -1252,7 +1252,7 @@ public class SctpConnection
     private void acceptIncomingSctpConnection()
     {
         SctpSocket sctpSocket = null;
-        logger.info("[FMDB] - This is what we really need to happen... OK? CID " + getID() + " EID " + getEndpoint().getID() + " BID " + getChannelBundleId())
+        logger.info("[FMDB] - This is what we really need to happen... OK? CID " + getID() + " EID " + getEndpoint().getID() + " BID " + getChannelBundleId());
         try
         {
             // sctpSocket is set to null on close
