@@ -1257,6 +1257,7 @@ public class SctpConnection
         {
             // sctpSocket is set to null on close
             sctpSocket = SctpConnection.this.sctpSocket;
+            logger.info("[FMDB] - Socket listening on " + sctpSocket.getPort());
             while (sctpSocket != null)
             {
                 logger.info("[FMDB] - Trying to accept: " + getID() + " EID " + getEndpoint().getID() + " BID " + getChannelBundleId());
