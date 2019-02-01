@@ -529,7 +529,8 @@ public class SctpConnection
                     try
                     {
                         Sctp.init();
-                        logger.info("Staring SCTP stream");
+                        logger.info("[FMDB] - Starting SCTP stream");
+
                         runOnDtlsTransport(connector);
                     }
                     catch (IOException e)
@@ -1056,6 +1057,8 @@ public class SctpConnection
     private void runOnDtlsTransport(StreamConnector connector)
         throws IOException
     {
+
+        logger.info("[FMDB] - DTLS - Transport - Running? Port: " + connector.getDataSocket().getPort() + " ID: " + getEndpoint().getID());
         SrtpControl srtpControl
             = getTransportManager().getSrtpControl(this);
         DtlsTransformEngine engine
@@ -1083,6 +1086,7 @@ public class SctpConnection
         {
             // FIXME local SCTP port is hardcoded in bridge offer SDP (Jitsi
             // Meet)
+            logger.info("Creating SCTP socket - port 5000 - hard coded.");
             sctpSocket = Sctp.createSocket(5000);
             assocIsUp = false;
             acceptedIncomingConnection = false;
@@ -1114,6 +1118,7 @@ public class SctpConnection
             }
         });
 
+        logger.info("[FMDB] - Attempting to connect to SCTP port: " + remoteSctpPort + " " + getEndpoint().getID());
         if (logger.isDebugEnabled())
         {
             logger.debug(
@@ -1213,9 +1218,12 @@ public class SctpConnection
             {
                 throw ex;
             }
+            logger.info("[FMDB] - We got some kind of exception and swallowed the error without logging. " + connector.getDataSocket().getPort() + " " + getEndpoint().getID());
+            ex.printStackTrace();
         }
         finally
         {
+            logger.info("[FMDB] - Closing socket - " + connector.getDataSocket().getPort() + " " + getEndpoint().getID());
             // Eventually, close the socket although it should happen in
             // expire().
             closeStream();
