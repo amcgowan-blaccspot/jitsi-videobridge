@@ -489,7 +489,7 @@ public class SctpConnection
     private void maybeOpenDefaultWebRTCDataChannel()
     {
         boolean openChannel;
-        logger.info("[FMDB] - Attempting to open a default data channel.");
+        logger.info("[FMDB] - Attempting to open a default data channel. ID: " + getID() + " EPID: " + getEndpoint().getID());
         synchronized (syncRoot)
         {
             openChannel
@@ -1088,7 +1088,7 @@ public class SctpConnection
         {
             // FIXME local SCTP port is hardcoded in bridge offer SDP (Jitsi
             // Meet)
-            logger.info("Creating SCTP socket - port 5000 - hard coded.");
+            logger.info("Creating SCTP socket - port 5000 - hard coded." + connector.getDataSocket().getPort() + " ID: " + getEndpoint().getID() + " " + getID());
             sctpSocket = Sctp.createSocket(5000);
             assocIsUp = false;
             acceptedIncomingConnection = false;
@@ -1133,6 +1133,7 @@ public class SctpConnection
 
         sctpSocket.setDataCallback(this);
 
+        logger.info("[FMDB] - ABOUT TO CALL THE BIG THING TO DO THE THINGS: " + remoteSctpPort + " " + getEndpoint().getID() + " ID " + getID() + " " + connector.getDataSocket().getLocalPort() + " " + connector.getDataSocket().getPort());
         sctpDispatcher.execute(this::acceptIncomingSctpConnection);
 
         // Setup iceSocket
@@ -1157,6 +1158,7 @@ public class SctpConnection
             logger.info("[FMDB] Creating receive loop: " +  remoteSctpPort + " " + getEndpoint().getID() + " ID " + getID() + " " + connector.getDataSocket().getLocalPort() + " " + connector.getDataSocket().getPort());
             do
             {
+                logger.info("[FMDB] - Waiting on: " +  remoteSctpPort + " " + getEndpoint().getID() + " ID " + getID() + " " + connector.getDataSocket().getLocalPort() + " " + connector.getDataSocket().getPort());
                 iceSocket.receive(recv);
 
                 RawPacket[] send
@@ -1250,14 +1252,17 @@ public class SctpConnection
     private void acceptIncomingSctpConnection()
     {
         SctpSocket sctpSocket = null;
+        logger.info("[FMDB] - This is what we really need to happen... OK? CID " + getID() + " EID " + getEndpoint().getID() + " BID " + getChannelBundleId())
         try
         {
             // sctpSocket is set to null on close
             sctpSocket = SctpConnection.this.sctpSocket;
             while (sctpSocket != null)
             {
+                logger.info("[FMDB] - Trying to accept: " + getID() + " EID " + getEndpoint().getID() + " BID " + getChannelBundleId());
                 if (sctpSocket.accept())
                 {
+                    logger.info("Accepted... YA..." + getID() + " EID " + getEndpoint().getID() + " BID " + getChannelBundleId());
                     acceptedIncomingConnection = true;
                     logger.info(
                         String.format("SCTP socket accepted on %s",
@@ -1267,6 +1272,7 @@ public class SctpConnection
                 Thread.sleep(100);
                 sctpSocket = SctpConnection.this.sctpSocket;
             }
+            logger.info("[FMDB] - OK accepted thingy done: " + getID() + " EID " + getEndpoint().getID() + " BID " + getChannelBundleId());
             // Implement waiting for ready
             synchronized (isReadyWaitLock)
             {
@@ -1282,15 +1288,18 @@ public class SctpConnection
         }
         catch (Exception e)
         {
+            logger.info("[FMDB] - This really sucks if we get here: " +  getID() + " EID " + getEndpoint().getID() + " BID " + getChannelBundleId());
+            e.printStackTrace();
             logger.error(
                 String.format(
                     "Error accepting SCTP connection %s",
                     getLoggingId()),
                 e);
         }
-
+        logger.info("[FMDB] - Check if socket is actually open: " +  getID() + " EID " + getEndpoint().getID() + " BID " + getChannelBundleId());
         if (sctpSocket == null)
         {
+            logger.info("[FMDB] = We are screwed: " +  getID() + " EID " + getEndpoint().getID() + " BID " + getChannelBundleId());
             logger.info(String.format(
                 "SctpConnection %s closed before SctpSocket accept()-ed.",
                 getLoggingId()));
