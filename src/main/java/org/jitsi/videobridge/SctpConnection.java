@@ -894,7 +894,7 @@ public class SctpConnection
     {
         synchronized (syncRoot)
         {
-            logger.info("[FMDB] - Opening channel");
+            logger.info("[FMDB] - Opening channel " + getID() + getEndpoint().getID() + " " + label + " ");
             return openChannelNotSynchronized(type, prio, reliab, sid, label);
         }
     }
@@ -910,6 +910,7 @@ public class SctpConnection
             int type, int prio, long reliab, int sid, String label)
         throws IOException
     {
+        logger.info("[FMDB] + Opening data channel: " + type + " " + prio + " " + sid + " " + label + " " + getID() + " " + getEndpoint().getID() + " ");
         if (channels.containsKey(sid))
             throw new IOException("Channel on sid: " + sid + " already exists");
 
@@ -962,6 +963,7 @@ public class SctpConnection
         if (sentCount != packet.capacity())
             throw new IOException("Failed to open new chanel on sid: " + sid);
 
+        logger.info("[FMDB] - Calling datachannel consturctor");
         WebRtcDataStream channel
             = new WebRtcDataStream(this, sctpSocket, sid, label, false);
 
@@ -1058,7 +1060,7 @@ public class SctpConnection
         throws IOException
     {
 
-        logger.info("[FMDB] - DTLS - Transport - Running? Port: " + connector.getDataSocket().getPort() + " ID: " + getEndpoint().getID());
+        logger.info("[FMDB] - DTLS - Transport - Running? Port: " + connector.getDataSocket().getPort() + " ID: " + getEndpoint().getID() + " " + getID());
         SrtpControl srtpControl
             = getTransportManager().getSrtpControl(this);
         DtlsTransformEngine engine
@@ -1118,7 +1120,7 @@ public class SctpConnection
             }
         });
 
-        logger.info("[FMDB] - Attempting to connect to SCTP port: " + remoteSctpPort + " " + getEndpoint().getID());
+        logger.info("[FMDB] - Attempting to connect to SCTP port: " + remoteSctpPort + " " + getEndpoint().getID() + " ID " + getID() + " " + connector.getDataSocket().getLocalPort() + " " + connector.getDataSocket().getPort());
         if (logger.isDebugEnabled())
         {
             logger.debug(
@@ -1152,6 +1154,7 @@ public class SctpConnection
         // Receive loop, breaks when SCTP socket is closed
         try
         {
+            logger.info("[FMDB] Creating receive loop: " +  remoteSctpPort + " " + getEndpoint().getID() + " ID " + getID() + " " + connector.getDataSocket().getLocalPort() + " " + connector.getDataSocket().getPort());
             do
             {
                 iceSocket.receive(recv);
@@ -1204,6 +1207,7 @@ public class SctpConnection
                 {
                     if (s != null)
                     {
+                        logger.info("[FMDB] - Receiving packet ID" + getID() + " EID " + getEndpoint().getID() + " CBI " + getChannelBundleId() + " P " + sctpSocket.getPort());
                         sctpSocket.onConnIn(
                                 s.getBuffer(), s.getOffset(), s.getLength());
                     }

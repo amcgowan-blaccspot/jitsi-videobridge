@@ -1052,7 +1052,7 @@ public class RtpChannel
     protected void maybeStartStream()
         throws IOException
     {
-        logger.info("[FMDB] - Maybe start stream.");
+        logger.info("[FMDB] - Maybe start stream. " + getEndpoint().getID());
         // The stream hasn't been initialized yet.
         synchronized (streamSyncRoot)
         {
@@ -1071,6 +1071,8 @@ public class RtpChannel
             logger.info("Not starting stream, connector is null");
             return;
         }
+
+        logger.info("[FMDB] - Starting stream?: " +   getEndpoint().getID() + connector.getDataSocket().getPort() + " " + connector.getDataSocket().getLocalPort() + " " + connector.isRtcpmux());
 
         if (streamTarget != null)
         {
@@ -1094,7 +1096,7 @@ public class RtpChannel
 
             stream.setTarget(streamTarget);
         }
-        logger.info("[FMDB] - Setting stream connector. Does this set the DTLS connector?");
+        logger.info("[FMDB] - Setting stream connector. Does this set the DTLS connector?  :: " +   getEndpoint().getID() + connector.getDataSocket().getPort() + " " + connector.getDataSocket().getLocalPort() + " " + connector.isRtcpmux());
         stream.setConnector(connector);
 
         Content content = getContent();
@@ -1102,6 +1104,7 @@ public class RtpChannel
 
         if (!stream.isStarted())
         {
+            logger.info("[FMDB] - Stream has not started: " + getEndpoint().getID()  + connector.getDataSocket().getPort() + " " + connector.getDataSocket().getLocalPort() + " " + connector.isRtcpmux());
             /*
              * We've postponed the invocation of the method
              * getRTPLevelRelayType() in order to make sure that the conference
@@ -1116,6 +1119,7 @@ public class RtpChannel
 
             synchronized (streamSyncRoot) // Otherwise, races with stream.setDirection().
             {
+                logger.info("[FMDB] Attempting to start: " +  getEndpoint().getID() + " " + connector.getDataSocket().getPort() + " " + connector.getDataSocket().getLocalPort() + " " + connector.isRtcpmux());
                 stream.start();
             }
 

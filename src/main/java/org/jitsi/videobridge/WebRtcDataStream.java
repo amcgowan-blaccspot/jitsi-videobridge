@@ -77,6 +77,7 @@ public class WebRtcDataStream
                      SctpSocket socket, int sid, String label,
                      boolean acknowledged)
     {
+        logger.info("[FMDB] - Creating data stream." + " Label: " + label + " Port: " + socket.getPort() + " CID: " + connection.getID() + " EID: " + connection.getEndpoint().getID() + " SID: " + sid);
         this.sctpConnection = connection;
         this.socket = socket;
         this.sid = sid;
