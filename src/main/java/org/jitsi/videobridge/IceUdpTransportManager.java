@@ -630,6 +630,9 @@ public class IceUdpTransportManager
             // channelForDtls, because it needs DTLS packets for the application
             // data inside them.
             sctpConnection = (SctpConnection) channel;
+
+            logger.info("[FMDB] - Adding CHannel " + sctpConnection.getID() + " " + sctpConnection.getEndpoint().getID());
+
             if (channelForDtls != null && channelForDtls instanceof RtpChannel)
             {
                 logger.info("[FMDB] - Channel for dtls stuff - REPLACING");
@@ -647,6 +650,7 @@ public class IceUdpTransportManager
                 rtpChannelForDtls.getDatagramFilter(true).setAcceptNonRtp(
                         false);
             }
+            logger.info("[FMDB] - CHannel for dtls is being set to " + sctpConnection.getID() + " " + sctpConnection.getEndpoint().getID());
             channelForDtls = sctpConnection;
         }
         else if (channelForDtls == null)
@@ -1994,9 +1998,20 @@ public class IceUdpTransportManager
     {
         iceConnected = true;
 
+        String identifier = "";
+        if (channelForDtls != null) {
+            if (channelForDtls.getEndpoint() != null) {
+                identifier = channelForDtls.getID() + " " + channelForDtls.getEndpoint().getID();
+            } else {
+                identifier = channelForDtls.getID() + " EP UNK";
+            }
+        } else {
+            identifier = " NO DTLS CHANNEL";
+        }
+
         if (conference.includeInStatistics())
         {
-            logger.info("[FMDB] - Attempting to get transport");
+            logger.info("[FMDB] - Attempting to get transport - (ONICECONNECTED) " + identifier);
             Transport transport = getTransport();
             if (transport == null)
             {
@@ -2004,6 +2019,16 @@ public class IceUdpTransportManager
             }
             else
             {
+               if (transport == Transport.TCP) {
+                   logger.info("[FMDB] Transport type is: TCP " + identifier);
+               } else if (transport == Transport.SSLTCP) {
+                   logger.info("[FMDB] Transport type is: SSLTCP " + identifier);
+               } else if (transport == Transport.UDP) {
+                   logger.info("[FMDB] Transport type is: UDP " + identifier);
+               } else {
+                   logger.info("[FMDB] Transport type is: SOMETHINGELSE " + identifier);
+               }
+
                 Conference.Statistics statistics = conference.getStatistics();
                 if (transport == Transport.TCP || transport == Transport.SSLTCP)
                 {
@@ -2020,6 +2045,10 @@ public class IceUdpTransportManager
         if (eventAdmin != null)
         {
             eventAdmin.sendEvent(EventFactory.transportConnected(this));
+        }
+
+        for (Channel c : getChannels()) {
+            logger.info("[FMDB] Calling connected for channel: " + c.getID() + " " + (c.getEndpoint() != null ? c.getEndpoint().getID() : " EP UNK "));
         }
 
         getChannels().forEach(Channel::transportConnected);

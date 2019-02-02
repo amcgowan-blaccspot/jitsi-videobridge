@@ -110,6 +110,15 @@ public abstract class TransportManager
         {
             if (!_channels.contains(channel))
             {
+                String identifier = "";
+                if (channel.getEndpoint() == null) {
+                    identifier = channel.getID() + " EP UNK";
+                } else {
+                    identifier = channel.getID() + " " + channel.getEndpoint().getID();
+                }
+
+
+                logger.info("[FMDB] - Adding channel to transport manager" + identifier);
                 // Implement _channels as a copy-on-write storage in order to
                 // reduce the synchronized blocks and, thus, the risks of
                 // deadlocks.

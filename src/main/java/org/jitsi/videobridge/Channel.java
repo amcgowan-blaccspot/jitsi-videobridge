@@ -310,8 +310,16 @@ public abstract class Channel
     protected TransportManager createTransportManager(String xmlNamespace)
         throws IOException
     {
+        String identifier = "";
+        if (getEndpoint() != null) {
+            identifier = getID() + " " + getEndpoint().getID();
+        } else {
+            identifier = getID() + " EP UNKNOWN";
+        }
+
         if (IceUdpTransportPacketExtension.NAMESPACE.equals(xmlNamespace))
         {
+            logger.info("[FMDB] - Create Transport for " + xmlNamespace + " " + " ICEUDP " + identifier);
             Content content = getContent();
 
             return
@@ -323,10 +331,14 @@ public abstract class Channel
         }
         else if (RawUdpTransportPacketExtension.NAMESPACE.equals(xmlNamespace))
         {
+            logger.info("[FMDB] - Create Transport for " + xmlNamespace + " " + " RAWUDP " + identifier);
+
             return new RawUdpTransportManager(this);
         }
         else if (OctoTransportManager.NAMESPACE.equals(xmlNamespace))
         {
+            logger.info("[FMDB] - Create Transport for " + xmlNamespace + " " + " OCTO " + identifier);
+
             return new OctoTransportManager(this);
         }
         else
@@ -665,10 +677,19 @@ public abstract class Channel
     {
         synchronized (transportManagerSyncRoot)
         {
+            String identifier = "";
+            if (getEndpoint() != null) {
+                identifier = getID() + " " + getEndpoint().getID() + " ";
+                logger.info("[FMDB] SCTP Init: " + identifier);
+            } else {
+                identifier = getID();
+                logger.info("[FMDB] SCTP init - No endpoint yet: " + identifier);
+            }
             // If this channel is not part of a channel-bundle, it creates
             // its own TransportManager
             if (channelBundleId == null)
             {
+                logger.info("[FMDB] Channel bundle id is null: " + identifier);
                 transportManager
                     = createTransportManager(transportNamespace);
             }
@@ -676,6 +697,7 @@ public abstract class Channel
             // channel-bundle, which is maintained by the Conference object.
             else
             {
+                logger.info("[FMDB] We have a channel bundle id so adding to a different transport manager " + identifier);
                 transportManager
                     = getContent().getConference()
                         .getTransportManager(channelBundleId, true, isInitiator());
@@ -686,6 +708,7 @@ public abstract class Channel
                 throw new IOException("Failed to get transport manager.");
             }
 
+            logger.info("[FMDB] - Adding to transport manager is connected? " + transportManager.isConnected() + " ");
             transportManager.addChannel(this);
         }
     }
@@ -935,7 +958,7 @@ public abstract class Channel
      */
     void transportConnected()
     {
-        logger.info("[FMDB] - Transport Conenected - This might set the DTLS? " + getID() + " - " + getEndpoint().getID());
+        logger.info("[FMDB] - Transport Conenected - This might set the DTLS OR IS THIS AFTER THE DTLS?? " + getID() + " - " + getEndpoint().getID());
         logger.info(Logger.Category.STATISTICS,
                     "transport_connected," + getLoggingId());
 
