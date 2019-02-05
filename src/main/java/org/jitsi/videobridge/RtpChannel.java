@@ -1096,7 +1096,7 @@ public class RtpChannel
 
             stream.setTarget(streamTarget);
         }
-        logger.info("[FMDB] - Setting stream connector. Does this set the DTLS connector?  :: " +   getEndpoint().getID() + connector.getDataSocket().getPort() + " " + connector.getDataSocket().getLocalPort() + " " + connector.isRtcpmux());
+        logger.info("[FMDB] - Connector is set here... This means connector should not be null during dtls transform  :: " +   getEndpoint().getID() + connector.getDataSocket().getPort() + " " + connector.getDataSocket().getLocalPort() + " " + connector.isRtcpmux());
         stream.setConnector(connector);
 
         Content content = getContent();

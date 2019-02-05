@@ -1121,12 +1121,12 @@ public class SctpConnection
         });
 
         logger.info("[FMDB] - Attempting to connect to SCTP port: " + remoteSctpPort + " " + getEndpoint().getID() + " ID " + getID() + " " + connector.getDataSocket().getLocalPort() + " " + connector.getDataSocket().getPort());
-        if (logger.isDebugEnabled())
-        {
+        //if (logger.isDebugEnabled())
+        //{
             logger.debug(
                     "Connecting SCTP to port: " + remoteSctpPort + " to "
                         + getEndpoint().getID());
-        }
+        //}
 
         sctpSocket.setNotificationListener(this);
         sctpSocket.listen();
@@ -1159,7 +1159,16 @@ public class SctpConnection
             do
             {
                 logger.info("[FMDB] - Waiting on: " +  remoteSctpPort + " " + getEndpoint().getID() + " ID " + getID() + " " + connector.getDataSocket().getLocalPort() + " " + connector.getDataSocket().getPort());
+
+                logger.info("[FMDB] - DTLS should be done at this point for a data channel. But seems it is not. " + getEndpoint().getID() + " ID " + getID() + " " + connector.getDataSocket().getLocalPort() + " " + connector.getDataSocket().getPort());
+
+                String portInfo = "Local Port: " + iceSocket.getLocalPort() + " " + (iceSocket.getUDPSocket() != null ? iceSocket.getUDPSocket().getPort() : " NO UDP");
+
+                logger.info("[FMDB] waiting for receive on: " + portInfo);
+
                 iceSocket.receive(recv);
+
+
 
                 RawPacket[] send
                     = {
@@ -1171,8 +1180,11 @@ public class SctpConnection
 
                 send = transformer.reverseTransform(send);
                 // Check for app data
-                if (send == null || send.length == 0)
+                if (send == null || send.length == 0) {
+                    logger.info("[FMDB] - No data - " + getEndpoint().getID() + " ID " + getID() + " " + connector.getDataSocket().getLocalPort() + " " + connector.getDataSocket().getPort() + portInfo);
                     continue;
+                }
+                logger.info("[FMDB] - Got packet on: " +  remoteSctpPort + " " + getEndpoint().getID() + " ID " + getID() + " " + connector.getDataSocket().getLocalPort() + " " + connector.getDataSocket().getPort() + portInfo);
 
                 // We received data for the SCTP socket, this SctpConnection
                 // is still alive
