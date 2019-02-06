@@ -513,7 +513,7 @@ public class SctpConnection
     {
         // connector
         final StreamConnector connector = getStreamConnector();
-        logger.info("[FMDB] - Maybe starting stream");
+        logger.info("[FMDB] - Maybe starting stream - (SCTP CONNECTION) Channel: " + getID() + " Endpoint: " + getEndpoint().getID());
         if (connector == null) {
             logger.info("[FMDB] - Nope, connector is null");
             return;
@@ -528,8 +528,9 @@ public class SctpConnection
                 () -> {
                     try
                     {
+                        logger.info("[FMDB] - Calling SCTP INIT: Channel: " + getID() + " ENdpoint: " + getEndpoint().getID());
                         Sctp.init();
-                        logger.info("[FMDB] - Starting SCTP stream");
+                        logger.info("[FMDB] - Starting SCTP stream: Channel: " + getID() + " Endpoint: " + getEndpoint().getID());
 
                         runOnDtlsTransport(connector);
                     }
@@ -754,6 +755,7 @@ public class SctpConnection
     {
         synchronized (syncRoot)
         {
+            logger.info("[FMDB] - SctpNotification - Type: " + notification.sn_type + "  Channel: " + getID() + " Endpoint: " + getEndpoint().getID() );
             if (logger.isDebugEnabled())
             {
                 // SCTP_SENDER_DRY_EVENT is logged too often. It means that the
@@ -813,7 +815,7 @@ public class SctpConnection
             // numbers.
             int sid = isInitiator() ? 0 : 1;
 
-            logger.info("[FMDB] - Opening default channel for some SID");
+            logger.info("[FMDB] - Opening default channel for some SID" + sid + " Channel: " + getID() + " Endpoint: " + getEndpoint().getID());
 
             logger.debug(String.format(
                 "Will open default WebRTC data channel for: %s next SID: %d",
@@ -846,10 +848,11 @@ public class SctpConnection
             byte[] data, int sid, int ssn, int tsn, long ppid, int context,
             int flags)
     {
-        logger.info("[FMDB] - Receiving SCTP packet");
+        logger.info("[FMDB] - Receiving SCTP packet - Channel: " + getID() + " Endpoint: " + getEndpoint().getID());
         sctpDispatcher.execute(() -> {
             if (!isExpired() && sctpSocket != null)
             {
+                logger.info("[FMDB] - Processing SCTP packet - Channel: " + getID() + " Endpoint: " + getEndpoint().getID());
                 processSctpPacket(data, sid, ssn, tsn, ppid, context, flags);
             }
         });
@@ -894,7 +897,7 @@ public class SctpConnection
     {
         synchronized (syncRoot)
         {
-            logger.info("[FMDB] - Opening channel " + getID() + getEndpoint().getID() + " " + label + " ");
+            logger.info("[FMDB] - Opening channel " + getID() + " Endpoing: " +  getEndpoint().getID() + " " + label + " ");
             return openChannelNotSynchronized(type, prio, reliab, sid, label);
         }
     }
