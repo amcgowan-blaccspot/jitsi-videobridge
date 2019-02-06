@@ -1052,7 +1052,7 @@ public class RtpChannel
     protected void maybeStartStream()
         throws IOException
     {
-        logger.info("[FMDB] - Maybe start stream. " + getEndpoint().getID());
+        logger.info("[FMDB] - Maybe start stream. Channel: " + getID() + " Endpoint: " + getEndpoint().getID());
         // The stream hasn't been initialized yet.
         synchronized (streamSyncRoot)
         {
@@ -1072,7 +1072,7 @@ public class RtpChannel
             return;
         }
 
-        logger.info("[FMDB] - Starting stream?: " +   getEndpoint().getID() + connector.getDataSocket().getPort() + " " + connector.getDataSocket().getLocalPort() + " " + connector.isRtcpmux());
+        logger.info("[FMDB] - Starting stream? Channel: " + getID() + " Endpoint: " +   getEndpoint().getID() + connector.getDataSocket().getPort() + " " + connector.getDataSocket().getLocalPort() + " " + connector.isRtcpmux());
 
         if (streamTarget != null)
         {
@@ -1096,7 +1096,7 @@ public class RtpChannel
 
             stream.setTarget(streamTarget);
         }
-        logger.info("[FMDB] - Connector is set here... This means connector should not be null during dtls transform  :: " +   getEndpoint().getID() + connector.getDataSocket().getPort() + " " + connector.getDataSocket().getLocalPort() + " " + connector.isRtcpmux());
+        logger.info("[FMDB] - Connector is set here... This means connector should not be null during dtls transform  ChannelID: " + getID() + " EndPointID: " + getEndpoint().getID() + connector.getDataSocket().getPort() + " " + connector.getDataSocket().getLocalPort() + " " + connector.isRtcpmux());
         stream.setConnector(connector);
 
         Content content = getContent();
