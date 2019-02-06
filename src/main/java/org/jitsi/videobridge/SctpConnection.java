@@ -1070,6 +1070,9 @@ public class SctpConnection
             = (DtlsTransformEngine) srtpControl.getTransformEngine();
         DtlsPacketTransformer transformer
             = (DtlsPacketTransformer) engine.getRTPTransformer();
+
+        transformer.setChannelAndEndpoint(getID(), getEndpoint().getID());
+
         if (this.transformer == null)
         {
             this.transformer = transformer;
