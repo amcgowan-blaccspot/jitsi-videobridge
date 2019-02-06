@@ -27,6 +27,13 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 
 import org.ice4j.socket.*;
 import org.ice4j.util.*;
+import org.jitsi.impl.neomedia.AbstractRTPConnector;
+import org.jitsi.impl.neomedia.RTPConnectorTCPInputStream;
+import org.jitsi.impl.neomedia.RTPConnectorUDPInputStream;
+import org.jitsi.impl.neomedia.transform.RTPTransformTCPConnector;
+import org.jitsi.impl.neomedia.transform.RTPTransformUDPConnector;
+import org.jitsi.impl.neomedia.transform.TransformTCPOutputStream;
+import org.jitsi.impl.neomedia.transform.TransformUDPOutputStream;
 import org.jitsi.impl.neomedia.transform.dtls.*;
 import org.jitsi.impl.osgi.framework.*;
 import org.jitsi.sctp4j.*;
@@ -1059,6 +1066,87 @@ public class SctpConnection
         }
     }
 
+    private AbstractRTPConnector createAbstractRtpConnector(StreamConnector connector)
+    {
+        logger.info("[FMDB] - SCTPCONNECTION - Setting connector on MediaStreamImpl Channel: " + this.getID());
+        if (connector == null)
+            throw new NullPointerException("connector");
+
+        switch (connector.getProtocol())
+        {
+            case UDP:
+                return new RTPTransformUDPConnector(connector)
+                {
+                    @Override
+                    protected RTPConnectorUDPInputStream createControlInputStream()
+                            throws IOException
+                    {
+                        RTPConnectorUDPInputStream s
+                                = super.createControlInputStream();
+
+                        return s;
+                    }
+
+                    @Override
+                    protected RTPConnectorUDPInputStream createDataInputStream()
+                            throws IOException
+                    {
+                        RTPConnectorUDPInputStream s
+                                = super.createDataInputStream();
+
+                        return s;
+                    }
+
+                    @Override
+                    protected TransformUDPOutputStream createDataOutputStream()
+                            throws IOException
+                    {
+                        TransformUDPOutputStream s
+                                = super.createDataOutputStream();
+
+                        return s;
+                    }
+                };
+            case TCP:
+                return new RTPTransformTCPConnector(connector)
+                {
+                    @Override
+                    protected RTPConnectorTCPInputStream createControlInputStream()
+                            throws IOException
+                    {
+                        RTPConnectorTCPInputStream s
+                                = super.createControlInputStream();
+
+                        return s;
+                    }
+
+                    @Override
+                    protected RTPConnectorTCPInputStream createDataInputStream()
+                            throws IOException
+                    {
+                        RTPConnectorTCPInputStream s
+                                = super.createDataInputStream();
+
+                        return s;
+                    }
+
+                    @Override
+                    protected TransformTCPOutputStream createDataOutputStream()
+                            throws IOException
+                    {
+                        TransformTCPOutputStream s
+                                = super.createDataOutputStream();
+
+                        return s;
+                    }
+                };
+            default:
+                throw new IllegalArgumentException("connector");
+        }
+    }
+
+
+
     private void runOnDtlsTransport(StreamConnector connector)
         throws IOException
     {
@@ -1072,6 +1160,39 @@ public class SctpConnection
             = (DtlsPacketTransformer) engine.getRTPTransformer();
 
         transformer.setChannelAndEndpoint(getID(), getEndpoint().getID());
+
+        TransportManager manager = getTransportManager();
+        boolean hasAudioChannel = false;
+        boolean hasVideoChannel = false;
+        boolean hasDataChannel = false;
+
+        for (Channel channel : manager.getChannels()) {
+            if (channel instanceof AudioChannel) {
+                hasAudioChannel = true;
+            } else if (channel instanceof VideoChannel) {
+                hasVideoChannel = true;
+            } else if (channel instanceof  SctpConnection) {
+                hasDataChannel = true;
+            }
+        }
+
+        logger.info("[FMDB] - Audio: " + hasAudioChannel + " Video: " + hasVideoChannel + " Data: " + hasDataChannel + " Channel: " + getID() + " Endpoint: " + getEndpoint().getID());
+
+        if (!hasAudioChannel && !hasVideoChannel) {
+           try {
+                AbstractRTPConnector rtpConnector = createAbstractRtpConnector(connector);
+                if (rtpConnector != null) {
+                    logger.info("[FMDB] - Attempting to set connector for : " + getID() + " " + getEndpoint().getID());
+                    srtpControl.setConnector(rtpConnector);
+                    logger.info("[FMDB] - Connector set : " + getID() + " " + getEndpoint().getID());
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                logger.error("[FMDB] - Could not set connector for : " + getID() + " " + getEndpoint().getID());
+            }
+        }
+
+        //srtpControl.setConnector(getTransportManager().getStreamConnector(this));
 
         if (this.transformer == null)
         {
