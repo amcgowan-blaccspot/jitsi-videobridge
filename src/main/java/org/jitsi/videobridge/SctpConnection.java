@@ -1401,6 +1401,7 @@ public class SctpConnection
             logger.info("[FMDB] - Socket listening on " + sctpSocket.getPort());
             while (sctpSocket != null)
             {
+
                 logger.info("[FMDB] - Trying to accept: " + getID() + " EID " + getEndpoint().getID() + " BID " + getChannelBundleId());
                 if (sctpSocket.accept())
                 {
@@ -1414,7 +1415,11 @@ public class SctpConnection
                 Thread.sleep(100);
                 sctpSocket = SctpConnection.this.sctpSocket;
             }
-            logger.info("[FMDB] - OK accepted thingy done: " + getID() + " EID " + getEndpoint().getID() + " BID " + getChannelBundleId());
+            if (sctpSocket == null) {
+                logger.info("[FMDB] - Connection shut down while waiting to connect. " + getID() + " EID " + getEndpoint().getID() + " BID " + getChannelBundleId());
+            } else {
+                logger.info("[FMDB] - accepted done: " + getID() + " EID " + getEndpoint().getID() + " BID " + getChannelBundleId());
+            }
             // Implement waiting for ready
             synchronized (isReadyWaitLock)
             {
