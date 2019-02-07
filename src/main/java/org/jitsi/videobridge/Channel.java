@@ -329,7 +329,7 @@ public abstract class Channel
                                 2 /* numComponents */,
                                 content.getName());
             } else {
-                return new IceUdpTransportManager(content.getConference(),isInitiator(),2, "stream", content.getName(), isSrtpDisabled);
+                return new IceUdpTransportManager(content.getConference(),isInitiator(),1, "stream", content.getName(), isSrtpDisabled);
             }
         }
         else if (RawUdpTransportPacketExtension.NAMESPACE.equals(xmlNamespace))
