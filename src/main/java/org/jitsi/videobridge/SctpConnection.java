@@ -1184,6 +1184,7 @@ public class SctpConnection
                 if (rtpConnector != null) {
                     logger.info("[FMDB] - Attempting to set connector for : " + getID() + " " + getEndpoint().getID());
                     srtpControl.setConnector(rtpConnector);
+                    logger.info("[FMDB] - Attempting to disable srtp");
                     transformer.disableSrtp();
                     logger.info("[FMDB] - Connector set : " + getID() + " " + getEndpoint().getID());
                 }
