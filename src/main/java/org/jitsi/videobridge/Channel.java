@@ -322,6 +322,7 @@ public abstract class Channel
             logger.info("[FMDB] - Create Transport for " + xmlNamespace + " " + " ICEUDP " + identifier + " StreamName: " + content.getName());
             Content content = getContent();
             if (!isSrtpDisabled) {
+                logger.info("[FMDB] - srtp enabled");
                 return
                         new IceUdpTransportManager(
                                 content.getConference(),
@@ -329,6 +330,7 @@ public abstract class Channel
                                 2 /* numComponents */,
                                 content.getName());
             } else {
+                logger.info("[FMDB] - srtp disabled");
                 return new IceUdpTransportManager(content.getConference(),isInitiator(),1, "stream", content.getName(), isSrtpDisabled);
             }
         }
