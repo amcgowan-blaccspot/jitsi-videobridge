@@ -270,7 +270,7 @@ public class SctpConnection
 
         logger
             = Logger.getLogger(classLogger, content.getConference().getLogger());
-        logger.info("[FMDB] - Just checking - do we create this? ID: " + getID() + " Remote PORT: " + remoteSctpPort + " CBD: " + channelBundleId + " Is Init: " + initiator);
+        logger.info("[FMDB] - Just checking - do we create this? ChannelID: " + id + "  ID: " + getID() + " Remote PORT: " + remoteSctpPort + " CBD: " + channelBundleId + " Is Init: " + initiator);
 
         setEndpoint(endpoint);
         packetQueue

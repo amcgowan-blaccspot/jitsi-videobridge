@@ -1052,6 +1052,7 @@ public class Videobridge
 
                         try
                         {
+                            logger.info("[FMDB] - VideoBridge - Creating SCTP Connection from IQ Channel ID: " + id + " Endpoint: " + endpoint.getID() + " Bundle: " + channelBundleId + " ");
                             sctpConn
                                 = content.createSctpConnection(
                                     endpoint,

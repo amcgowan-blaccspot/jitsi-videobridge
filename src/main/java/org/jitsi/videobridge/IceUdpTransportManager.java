@@ -50,8 +50,7 @@ import org.osgi.framework.*;
  * @author Boris Grozev
  */
 public class IceUdpTransportManager
-    extends TransportManager
-{
+    extends TransportManager {
     /**
      * The name default of the single <tt>IceStream</tt> that this
      * <tt>TransportManager</tt> will create/use.
@@ -63,7 +62,7 @@ public class IceUdpTransportManager
      * <tt>TcpHarvester</tt>.
      */
     public static final String DISABLE_TCP_HARVESTER
-        = "org.jitsi.videobridge.DISABLE_TCP_HARVESTER";
+            = "org.jitsi.videobridge.DISABLE_TCP_HARVESTER";
 
     /**
      * The name of the property which controls the port number used for
@@ -84,7 +83,7 @@ public class IceUdpTransportManager
      * Default to keeping alive the selected pair and any TCP pairs.
      */
     private static KeepAliveStrategy keepAliveStrategy
-        = KeepAliveStrategy.SELECTED_AND_TCP;
+            = KeepAliveStrategy.SELECTED_AND_TCP;
 
     /**
      * The default value of the port to be used for
@@ -98,7 +97,7 @@ public class IceUdpTransportManager
      * instead.
      */
     private static final Logger classLogger
-        = Logger.getLogger(IceUdpTransportManager.class);
+            = Logger.getLogger(IceUdpTransportManager.class);
 
     /**
      * The default port that the <tt>TcpHarvester</tt> will
@@ -119,28 +118,28 @@ public class IceUdpTransportManager
      * advertised by the TCP harvester.
      */
     public static final String TCP_HARVESTER_MAPPED_PORT
-        = "org.jitsi.videobridge.TCP_HARVESTER_MAPPED_PORT";
+            = "org.jitsi.videobridge.TCP_HARVESTER_MAPPED_PORT";
 
     /**
      * The name of the property which controls the port to which the
      * <tt>TcpHarvester</tt> will bind.
      */
     public static final String TCP_HARVESTER_PORT
-        = "org.jitsi.videobridge.TCP_HARVESTER_PORT";
+            = "org.jitsi.videobridge.TCP_HARVESTER_PORT";
 
     /**
      * The name of the property which controls the use of ssltcp candidates by
      * <tt>TcpHarvester</tt>.
      */
     public static final String TCP_HARVESTER_SSLTCP
-        = "org.jitsi.videobridge.TCP_HARVESTER_SSLTCP";
+            = "org.jitsi.videobridge.TCP_HARVESTER_SSLTCP";
 
     /**
      * The name of the property that can be used to control the value of
      * {@link #iceUfragPrefix}.
      */
     public static final String ICE_UFRAG_PREFIX_PNAME
-        = "org.jitsi.videobridge.ICE_UFRAG_PREFIX";
+            = "org.jitsi.videobridge.ICE_UFRAG_PREFIX";
 
     /**
      * The optional prefix to use for generated ICE local username fragments.
@@ -197,7 +196,7 @@ public class IceUdpTransportManager
      * The name of the property which configures {@link #useComponentSocket}.
      */
     public static final String USE_COMPONENT_SOCKET_PNAME
-        = "org.jitsi.videobridge.USE_COMPONENT_SOCKET";
+            = "org.jitsi.videobridge.USE_COMPONENT_SOCKET";
 
     /**
      * Initializes the static <tt>Harvester</tt> instances used by all
@@ -205,46 +204,38 @@ public class IceUdpTransportManager
      * {@link #tcpHarvester} and {@link #singlePortHarvesters}.
      *
      * @param cfg the {@link ConfigurationService} which provides values to
-     * configurable properties of the behavior/logic of the method
-     * implementation
+     *            configurable properties of the behavior/logic of the method
+     *            implementation
      */
-    private static void initializeStaticConfiguration(ConfigurationService cfg)
-    {
-        synchronized (IceUdpTransportManager.class)
-        {
-            if (staticConfigurationInitialized)
-            {
+    private static void initializeStaticConfiguration(ConfigurationService cfg) {
+        synchronized (IceUdpTransportManager.class) {
+            if (staticConfigurationInitialized) {
                 return;
             }
             staticConfigurationInitialized = true;
 
             useComponentSocket
-                = cfg.getBoolean(USE_COMPONENT_SOCKET_PNAME, useComponentSocket);
+                    = cfg.getBoolean(USE_COMPONENT_SOCKET_PNAME, useComponentSocket);
             classLogger.info("Using component socket: " + useComponentSocket);
 
             iceUfragPrefix = cfg.getString(ICE_UFRAG_PREFIX_PNAME, null);
 
             String strategyName = cfg.getString(KEEP_ALIVE_STRATEGY_PNAME);
             KeepAliveStrategy strategy
-                = KeepAliveStrategy.fromString(strategyName);
-            if (strategyName != null && strategy == null)
-            {
+                    = KeepAliveStrategy.fromString(strategyName);
+            if (strategyName != null && strategy == null) {
                 classLogger.warn("Invalid keep alive strategy name: "
-                                     + strategyName);
-            }
-            else if (strategy != null)
-            {
+                        + strategyName);
+            } else if (strategy != null) {
                 keepAliveStrategy = strategy;
             }
 
             int singlePort = cfg.getInt(SINGLE_PORT_HARVESTER_PORT,
-                                        SINGLE_PORT_DEFAULT_VALUE);
-            if (singlePort != -1)
-            {
+                    SINGLE_PORT_DEFAULT_VALUE);
+            if (singlePort != -1) {
                 singlePortHarvesters
-                    = SinglePortUdpHarvester.createHarvesters(singlePort);
-                if (singlePortHarvesters.isEmpty())
-                {
+                        = SinglePortUdpHarvester.createHarvesters(singlePort);
+                if (singlePortHarvesters.isEmpty()) {
                     singlePortHarvesters = null;
                     classLogger.info("No single-port harvesters created.");
                 }
@@ -252,36 +243,30 @@ public class IceUdpTransportManager
                 IceUdpTransportManager.healthy = singlePortHarvesters != null;
             }
 
-            if (!cfg.getBoolean(DISABLE_TCP_HARVESTER, false))
-            {
+            if (!cfg.getBoolean(DISABLE_TCP_HARVESTER, false)) {
                 int port = cfg.getInt(TCP_HARVESTER_PORT, -1);
                 boolean fallback = false;
                 boolean ssltcp = cfg.getBoolean(TCP_HARVESTER_SSLTCP,
-                                                TCP_HARVESTER_SSLTCP_DEFAULT);
+                        TCP_HARVESTER_SSLTCP_DEFAULT);
 
-                if (port == -1)
-                {
+                if (port == -1) {
                     port = TCP_DEFAULT_PORT;
                     fallback = true;
                 }
 
-                try
-                {
+                try {
                     tcpHarvester = new TcpHarvester(port, ssltcp);
-                }
-                catch (IOException ioe)
-                {
+                } catch (IOException ioe) {
                     classLogger.warn(
-                        "Failed to initialize TCP harvester on port " + port
-                            + ": " + ioe
-                            + (fallback
-                            ? ". Retrying on port " + TCP_FALLBACK_PORT
-                            : "")
-                            + ".");
+                            "Failed to initialize TCP harvester on port " + port
+                                    + ": " + ioe
+                                    + (fallback
+                                    ? ". Retrying on port " + TCP_FALLBACK_PORT
+                                    : "")
+                                    + ".");
                     // If no fallback is allowed, the method will return.
                 }
-                if (tcpHarvester == null)
-                {
+                if (tcpHarvester == null) {
                     // If TCP_HARVESTER_PORT specified a port, then fallback was
                     // disabled. However, if the binding on the port (above)
                     // fails, then the method should return.
@@ -289,29 +274,24 @@ public class IceUdpTransportManager
                         return;
 
                     port = TCP_FALLBACK_PORT;
-                    try
-                    {
+                    try {
                         tcpHarvester
-                            = new TcpHarvester(port, ssltcp);
-                    }
-                    catch (IOException ioe)
-                    {
+                                = new TcpHarvester(port, ssltcp);
+                    } catch (IOException ioe) {
                         classLogger.warn(
-                            "Failed to initialize TCP harvester on fallback"
-                                + " port " + port + ": " + ioe);
+                                "Failed to initialize TCP harvester on fallback"
+                                        + " port " + port + ": " + ioe);
                         return;
                     }
                 }
 
-                if (classLogger.isInfoEnabled())
-                {
+                if (classLogger.isInfoEnabled()) {
                     classLogger.info("Initialized TCP harvester on port " + port
-                                         + ", using SSLTCP:" + ssltcp);
+                            + ", using SSLTCP:" + ssltcp);
                 }
 
                 int mappedPort = cfg.getInt(TCP_HARVESTER_MAPPED_PORT, -1);
-                if (mappedPort != -1)
-                {
+                if (mappedPort != -1) {
                     tcpHarvesterMappedPort = mappedPort;
                     tcpHarvester.addMappedPort(mappedPort);
                 }
@@ -325,27 +305,22 @@ public class IceUdpTransportManager
      * {@link #tcpHarvester} and {@link #singlePortHarvesters}.
      *
      * @param cfg the {@link ConfigurationService} which provides values to
-     * configurable properties of the behavior/logic of the method
-     * implementation
+     *            configurable properties of the behavior/logic of the method
+     *            implementation
      */
-    public static void closeStaticConfiguration(ConfigurationService cfg)
-    {
-        synchronized (IceUdpTransportManager.class)
-        {
-            if (!staticConfigurationInitialized)
-            {
+    public static void closeStaticConfiguration(ConfigurationService cfg) {
+        synchronized (IceUdpTransportManager.class) {
+            if (!staticConfigurationInitialized) {
                 return;
             }
             staticConfigurationInitialized = false;
 
-            if (singlePortHarvesters != null)
-            {
+            if (singlePortHarvesters != null) {
                 singlePortHarvesters.forEach(AbstractUdpListener::close);
                 singlePortHarvesters = null;
             }
 
-            if (tcpHarvester != null)
-            {
+            if (tcpHarvester != null) {
                 tcpHarvester.close();
                 tcpHarvester = null;
             }
@@ -408,7 +383,7 @@ public class IceUdpTransportManager
      * changes in the <tt>state</tt> of {@link #iceAgent}.
      */
     private final PropertyChangeListener iceAgentStateChangeListener
-        = this::iceAgentStateChange;
+            = this::iceAgentStateChange;
 
     /**
      * Whether ICE connectivity has been established.
@@ -427,7 +402,7 @@ public class IceUdpTransportManager
      * {@link #iceStream}.
      */
     private final PropertyChangeListener iceStreamPairChangeListener
-        = this::iceStreamPairChange;
+            = this::iceStreamPairChange;
 
     /**
      * Whether this <tt>IceUdpTransportManager</tt> will serve as the the
@@ -449,7 +424,7 @@ public class IceUdpTransportManager
     /**
      * The <tt>SctpConnection</tt> instance, if any, added as a <tt>Channel</tt>
      * to this <tt>IceUdpTransportManager</tt>.
-     *
+     * <p>
      * Currently we support a single <tt>SctpConnection</tt> in one
      * <tt>IceUdpTransportManager</tt> and if it exists, it will receive all
      * DTLS packets.
@@ -472,59 +447,65 @@ public class IceUdpTransportManager
     /**
      * Initializes a new <tt>IceUdpTransportManager</tt> instance.
      *
-     * @param conference the <tt>Conference</tt> which created this
-     * <tt>TransportManager</tt>.
+     * @param conference  the <tt>Conference</tt> which created this
+     *                    <tt>TransportManager</tt>.
      * @param controlling {@code true} if the new instance is to serve as a
-     * controlling ICE agent and passive DTLS endpoint; otherwise, {@code false}
+     *                    controlling ICE agent and passive DTLS endpoint; otherwise, {@code false}
      * @throws IOException
      */
     public IceUdpTransportManager(Conference conference,
                                   boolean controlling)
-        throws IOException
-    {
+            throws IOException {
         this(conference, controlling, 2, DEFAULT_ICE_STREAM_NAME, null);
     }
 
     /**
      * Initializes a new <tt>IceUdpTransportManager</tt> instance.
      *
-     * @param conference the <tt>Conference</tt> which created this
-     * <tt>TransportManager</tt>.
-     * @param controlling {@code true} if the new instance is to serve as a
-     * controlling ICE agent and passive DTLS endpoint; otherwise, {@code false}
+     * @param conference    the <tt>Conference</tt> which created this
+     *                      <tt>TransportManager</tt>.
+     * @param controlling   {@code true} if the new instance is to serve as a
+     *                      controlling ICE agent and passive DTLS endpoint; otherwise, {@code false}
      * @param numComponents the number of ICE components that this instance is
-     * to start with.
+     *                      to start with.
      * @throws IOException
      */
     public IceUdpTransportManager(Conference conference,
                                   boolean controlling,
                                   int numComponents)
-        throws IOException
-    {
+            throws IOException {
         this(conference, controlling, numComponents,
-             DEFAULT_ICE_STREAM_NAME, null);
+                DEFAULT_ICE_STREAM_NAME, null);
     }
 
     /**
      * Initializes a new <tt>IceUdpTransportManager</tt> instance.
      *
-     * @param conference the <tt>Conference</tt> which created this
-     * <tt>TransportManager</tt>.
-     * @param controlling {@code true} if the new instance is to serve as a
-     * controlling ICE agent and passive DTLS endpoint; otherwise, {@code false}
+     * @param conference    the <tt>Conference</tt> which created this
+     *                      <tt>TransportManager</tt>.
+     * @param controlling   {@code true} if the new instance is to serve as a
+     *                      controlling ICE agent and passive DTLS endpoint; otherwise, {@code false}
      * @param numComponents the number of ICE components that this instance is
-     * to start with.
-     * @param id an identifier of the {@link IceUdpTransportManager}.
+     *                      to start with.
+     * @param id            an identifier of the {@link IceUdpTransportManager}.
      * @throws IOException
      */
     public IceUdpTransportManager(Conference conference,
                                   boolean controlling,
                                   int numComponents,
                                   String id)
-        throws IOException
-    {
+            throws IOException {
         this(conference, controlling, numComponents,
-             DEFAULT_ICE_STREAM_NAME, id);
+                DEFAULT_ICE_STREAM_NAME, id);
+    }
+
+    public IceUdpTransportManager(Conference conference,
+                                  boolean controlling,
+                                  int numComponents,
+                                  String iceStreamName,
+                                  String id)
+    {
+        this(conference, controlling, numComponents, iceStreamName, id, false);
     }
 
     /**
@@ -545,7 +526,7 @@ public class IceUdpTransportManager
                                   boolean controlling,
                                   int numComponents,
                                   String iceStreamName,
-                                  String id)
+                                  String id, boolean isSrtpDisabled)
         throws IOException
     {
         this.conference = conference;
@@ -560,7 +541,7 @@ public class IceUdpTransportManager
         conference.appendDiagnosticInformation(diagnosticContext);
         diagnosticContext.put("transport", hashCode());
 
-        dtlsControl = createDtlsControl();
+        dtlsControl = createDtlsControl(isSrtpDisabled);
 
         iceAgent = createIceAgent(controlling, iceStreamName, rtcpmux);
         iceAgent.addStateChangeListener(iceAgentStateChangeListener);
@@ -1060,10 +1041,10 @@ public class IceUdpTransportManager
      *
      * @return a new {@code DtlsControlImpl} instance
      */
-    private DtlsControlImpl createDtlsControl()
+    private DtlsControlImpl createDtlsControl(boolean isSrtpDisabled)
     {
         DtlsControlImpl dtlsControl
-            = new DtlsControlImpl(/* srtpDisabled */ false);
+            = new DtlsControlImpl(isSrtpDisabled);
 
         dtlsControl.registerUser(this);
         // (1) According to https://tools.ietf.org/html/rfc5245#section-5.2, in

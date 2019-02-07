@@ -307,7 +307,7 @@ public abstract class Channel
      * new <tt>TransportManager</tt> instance which has the specified
      * <tt>xmlNamespace</tt>
      */
-    protected TransportManager createTransportManager(String xmlNamespace)
+    protected TransportManager createTransportManager(String xmlNamespace, boolean isSrtpDisabled)
         throws IOException
     {
         String identifier = "";
@@ -319,15 +319,18 @@ public abstract class Channel
 
         if (IceUdpTransportPacketExtension.NAMESPACE.equals(xmlNamespace))
         {
-            logger.info("[FMDB] - Create Transport for " + xmlNamespace + " " + " ICEUDP " + identifier);
+            logger.info("[FMDB] - Create Transport for " + xmlNamespace + " " + " ICEUDP " + identifier + " StreamName: " + content.getName());
             Content content = getContent();
-
-            return
-                new IceUdpTransportManager(
-                        content.getConference(),
-                        isInitiator(),
-                        2 /* numComponents */,
-                        content.getName());
+            if (!isSrtpDisabled) {
+                return
+                        new IceUdpTransportManager(
+                                content.getConference(),
+                                isInitiator(),
+                                2 /* numComponents */,
+                                content.getName());
+            } else {
+                return new IceUdpTransportManager(content.getConference(),isInitiator(),2, "stream", content.getName(), isSrtpDisabled);
+            }
         }
         else if (RawUdpTransportPacketExtension.NAMESPACE.equals(xmlNamespace))
         {
@@ -690,8 +693,12 @@ public abstract class Channel
             if (channelBundleId == null)
             {
                 logger.info("[FMDB] Channel bundle id is null: " + identifier);
+                boolean isSrtpDisabled = false;
+                if (this instanceof SctpConnection) {
+                    isSrtpDisabled = true;
+                }
                 transportManager
-                    = createTransportManager(transportNamespace);
+                    = createTransportManager(transportNamespace, isSrtpDisabled);
             }
             // Otherwise, it uses a TransportManager specific to the
             // channel-bundle, which is maintained by the Conference object.
