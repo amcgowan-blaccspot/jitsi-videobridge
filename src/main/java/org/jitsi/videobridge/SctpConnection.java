@@ -1184,6 +1184,7 @@ public class SctpConnection
                 if (rtpConnector != null) {
                     logger.info("[FMDB] - Attempting to set connector for : " + getID() + " " + getEndpoint().getID());
                     srtpControl.setConnector(rtpConnector);
+                    transformer.disableSrtp();
                     logger.info("[FMDB] - Connector set : " + getID() + " " + getEndpoint().getID());
                 }
             } catch (Exception e) {
@@ -1263,6 +1264,7 @@ public class SctpConnection
         logger.info("[FMDB] - ABOUT TO CALL THE BIG THING TO DO THE THINGS: " + remoteSctpPort + " " + getEndpoint().getID() + " ID " + getID() + " " + connector.getDataSocket().getLocalPort() + " " + connector.getDataSocket().getPort());
         sctpDispatcher.execute(this::acceptIncomingSctpConnection);
 
+
         // Setup iceSocket
         DatagramSocket datagramSocket = connector.getDataSocket();
         IceSocketWrapper iceSocket;
@@ -1294,7 +1296,6 @@ public class SctpConnection
                 logger.info("[FMDB] waiting for receive on: " + portInfo);
 
                 iceSocket.receive(recv);
-
 
 
                 RawPacket[] send
