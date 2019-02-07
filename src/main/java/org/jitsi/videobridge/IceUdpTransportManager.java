@@ -504,7 +504,7 @@ public class IceUdpTransportManager
                                   int numComponents,
                                   String iceStreamName,
                                   String id)
-    {
+            throws IOException {
         this(conference, controlling, numComponents, iceStreamName, id, false);
     }
 
